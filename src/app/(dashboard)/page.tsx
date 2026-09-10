@@ -7,18 +7,18 @@ export default async function DashboardPage() {
   const intelligence = await getLatestIntelligence()
 
   return (
-    <div className="flex h-screen">
+    <div className="flex flex-col md:flex-row min-h-full">
       {/* Left Panel: Data Sources */}
-      <div className="w-1/2 flex flex-col h-full border-r p-4">
-        <div className="flex-1 overflow-hidden">
+      <div className="w-full md:w-1/2 flex flex-col border-b md:border-b-0 md:border-r p-4">
+        <div className="flex-1">
           <DataSourcesForm initialData={snapshot} />
         </div>
       </div>
 
       {/* Right Panel: Growth Intelligence */}
-      <div className="w-1/2 flex flex-col h-full p-4">
+      <div className="w-full md:w-1/2 flex flex-col p-4">
         <h2 className="text-xl font-serif font-bold tracking-tight mb-4">Growth Intelligence</h2>
-        <div className="flex-1 overflow-y-auto max-w-none">
+        <div className="flex-1 max-w-none">
           {intelligence ? (
             <Markdown>{intelligence.content}</Markdown>
           ) : (

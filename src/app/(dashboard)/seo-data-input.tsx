@@ -46,7 +46,7 @@ export function SeoDataInput({ initialData }: { initialData?: string }) {
         }))
       },
     })
-    
+
     // Reset file input
     e.target.value = ""
   }
@@ -89,17 +89,17 @@ export function SeoDataInput({ initialData }: { initialData?: string }) {
   return (
     <div className="space-y-4">
       <input type="hidden" name="seoData" value={JSON.stringify(data)} />
-      
+
       <Tabs defaultValue="pages" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="pages">Pages</TabsTrigger>
-          <TabsTrigger value="queries">Queries</TabsTrigger>
-          <TabsTrigger value="searchAppearance">Search Appearance</TabsTrigger>
+        <TabsList className="flex flex-col h-auto w-full sm:grid sm:grid-cols-3 sm:h-10">
+          <TabsTrigger value="pages" className="w-full">Pages</TabsTrigger>
+          <TabsTrigger value="queries" className="w-full">Queries</TabsTrigger>
+          <TabsTrigger value="searchAppearance" className="w-full">Search Appearance</TabsTrigger>
         </TabsList>
-        
+
         {(["pages", "queries", "searchAppearance"] as const).map((tab) => (
           <TabsContent key={tab} value={tab} className="space-y-4 pt-4 border rounded-md p-4">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
               <h3 className="text-sm font-medium capitalize">{tab.replace(/([A-Z])/g, ' $1').trim()} Data</h3>
               <div className="relative">
                 <input
@@ -109,7 +109,7 @@ export function SeoDataInput({ initialData }: { initialData?: string }) {
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   title="Upload CSV"
                 />
-                <Button size="sm" variant="outline" className="pointer-events-none">
+                <Button size="sm" variant="outline" className="pointer-events-none w-full sm:w-auto">
                   <Upload className="w-4 h-4 mr-2" /> Upload CSV
                 </Button>
               </div>

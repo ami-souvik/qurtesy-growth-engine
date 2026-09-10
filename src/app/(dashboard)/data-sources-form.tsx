@@ -26,9 +26,9 @@ export function DataSourcesForm({ initialData }: { initialData: any }) {
 
   return (
     <form action={saveDataSources} className="flex flex-col h-full space-y-4">
-      <div className="flex justify-between items-center mb-4 pb-4 border-b">
+      <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-4 pb-4 border-b">
         <h1 className="text-xl font-serif font-bold tracking-tight">Data Sources</h1>
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-2 md:gap-4">
           <Button type="submit">Save Sources</Button>
           <Button type="button" variant="secondary" onClick={handleGenerate} disabled={isGenerating}>
             {isGenerating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -37,7 +37,7 @@ export function DataSourcesForm({ initialData }: { initialData: any }) {
         </div>
       </div>
 
-      <div className="space-y-8 flex-1 overflow-y-auto pb-12">
+      <div className="space-y-8 flex-1 pb-12">
         <div className="space-y-2">
           <div>
             <Label htmlFor="productUpdates" className="font-semibold text-lg text-primary">Product Updates</Label>
