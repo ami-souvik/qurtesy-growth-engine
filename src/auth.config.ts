@@ -9,8 +9,11 @@ export const authConfig = {
         password: { label: "Password", type: "password" },
       },
       authorize: async (credentials) => {
-        if (credentials.email === "admin@qurtesy.com" && credentials.password === "qurtesy2026") {
-          return { id: "1", name: "Admin", email: "admin@qurtesy.com" }
+        if (
+          credentials.email === process.env.USERNAME
+          && credentials.password === process.env.PASSWORD
+        ) {
+          return { id: "1", name: "Admin", email: process.env.USERNAME }
         }
         return null
       },
