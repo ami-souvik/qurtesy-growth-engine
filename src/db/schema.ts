@@ -173,3 +173,17 @@ export const growthIntelligence = sqliteTable("growth_intelligence", {
   content: text("content").notNull(),
   createdAt: integer("created_at", { mode: "timestamp_ms" }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
+
+export const redditConfig = sqliteTable("reddit_config", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  enabled: integer("enabled", { mode: "boolean" }).default(false).notNull(),
+  lastScanAt: integer("last_scan_at", { mode: "timestamp_ms" }),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
+
+export const redditCommunities = sqliteTable("reddit_communities", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  name: text("name").notNull().unique(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+});

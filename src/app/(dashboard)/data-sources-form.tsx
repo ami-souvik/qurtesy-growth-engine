@@ -8,8 +8,17 @@ import { Label } from "@/components/ui/label"
 import { Loader2 } from "lucide-react"
 
 import { SeoDataInput } from "./seo-data-input"
+import { RedditSourceInput } from "./reddit-source-input"
 
-export function DataSourcesForm({ initialData }: { initialData: any }) {
+export function DataSourcesForm({ 
+  initialData,
+  redditConfig,
+  redditCommunities,
+}: { 
+  initialData: any,
+  redditConfig?: any,
+  redditCommunities?: any[]
+}) {
   const [isGenerating, setIsGenerating] = useState(false)
 
   const handleGenerate = async () => {
@@ -44,6 +53,19 @@ export function DataSourcesForm({ initialData }: { initialData: any }) {
             <p className="text-sm text-muted-foreground">Sync from Qurtesy GitHub/changelog.</p>
           </div>
           <Textarea id="productUpdates" name="productUpdates" defaultValue={initialData?.productUpdates || ""} rows={4} className="font-mono text-sm" placeholder="Added tailored cover-letter generation..." />
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <Label className="font-semibold text-lg text-primary">Reddit Growth Intelligence</Label>
+            <p className="text-sm text-muted-foreground">Configure the subreddits to monitor for user pain points and opportunities.</p>
+          </div>
+          {redditConfig && redditCommunities && (
+            <RedditSourceInput 
+              initialConfig={redditConfig} 
+              initialCommunities={redditCommunities} 
+            />
+          )}
         </div>
 
         <div className="space-y-4">
