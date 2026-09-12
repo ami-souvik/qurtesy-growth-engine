@@ -258,3 +258,24 @@ export const redditOpportunities = sqliteTable("reddit_opportunities", {
   updatedAt: integer("updated_at", { mode: "timestamp_ms" }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
+export const redditGrowthInsights = sqliteTable("reddit_growth_insights", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  growthIntelligenceId: text("growth_intelligence_id")
+    .references(() => growthIntelligence.id, { onDelete: "cascade" }),
+  
+  theme: text("theme").notNull(),
+  category: text("category").notNull(), // RECURRING_PAIN, EMERGING_THEME, OPPORTUNITY_CLUSTER, FEATURE_REQUEST
+  evidenceStatus: text("evidence_status").notNull(), // Repeated, Emerging, Observed, Hypothesis
+  frequency: integer("frequency").default(1).notNull(), // Count of supporting posts
+  confidence: integer("confidence").default(0).notNull(), // 0 - 100 percentage
+  
+  naturalLanguage: text("natural_language").notNull(), // JSON array of authentic user quotes/phrases
+  recommendedAction: text("recommended_action").notNull(), // Tactical advice for Qurtesy
+  lastObservedAt: integer("last_observed_at", { mode: "timestamp_ms" }).notNull(),
+  
+  sources: text("sources").notNull(), // JSON array of [{ postId, title, subreddit, permalink }]
+  
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
+

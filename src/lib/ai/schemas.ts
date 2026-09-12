@@ -79,3 +79,79 @@ export const RedditOpportunityClassificationSchema = z.object({
 
 export type RedditOpportunityClassification = z.infer<typeof RedditOpportunityClassificationSchema>;
 
+export const RedditGrowthInsightCategoryEnum = z.enum([
+  "RECURRING_PAIN",
+  "EMERGING_THEME",
+  "OPPORTUNITY_CLUSTER",
+  "FEATURE_REQUEST",
+]);
+
+export const RedditEvidenceStatusEnum = z.enum([
+  "Repeated",
+  "Emerging",
+  "Observed",
+  "Hypothesis",
+]);
+
+export const RedditGrowthInsightItemSchema = z
+  .object({
+    theme: z.string().describe("Clear, concise theme title (e.g. 'ATS Multi-Column Table Scrambling')."),
+    category: RedditGrowthInsightCategoryEnum.describe(
+      "Intelligence category: RECURRING_PAIN, EMERGING_THEME, OPPORTUNITY_CLUSTER, or FEATURE_REQUEST."
+    ),
+    evidenceStatus: RedditEvidenceStatusEnum.describe(
+      "Evidence level: Repeated (3+ posts), Emerging (2 posts), Observed (1-2 strong quotes), Hypothesis (inferred/tentative)."
+    ),
+    frequency: z
+      .number()
+      .int()
+      .min(1)
+      .describe("Number of distinct Reddit posts contributing evidence to this insight."),
+    confidence: z
+      .number()
+      .min(0)
+      .max(100)
+      .describe("Confidence percentage (0 - 100) based on signal strength and evidence consistency."),
+    naturalLanguage: z
+      .array(z.string())
+      .min(1)
+      .describe("Verbatim phrases and words job seekers actually use (e.g. 'black hole', 'scrambled my headers')."),
+    recommendedAction: z
+      .string()
+      .describe("Actionable, strategic guidance for Qurtesy product positioning, content, or feature roadmapping."),
+    sourcePostIds: z
+      .array(z.string())
+      .min(1)
+      .describe("Array of post IDs from the input opportunities that provide direct evidence for this insight."),
+  })
+  .refine(
+    data => {
+      // Guardrail: Never call a single post 'Repeated'
+      if (data.frequency === 1 && data.evidenceStatus === "Repeated") {
+        return false;
+      }
+      // Repeated requires at least 3 supporting posts
+      if (data.evidenceStatus === "Repeated" && data.frequency < 3) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Repeated status requires at least 3 supporting posts. Single posts cannot be labeled Repeated.",
+      path: ["evidenceStatus"],
+    }
+  );
+
+export type RedditGrowthInsightItem = z.infer<typeof RedditGrowthInsightItemSchema>;
+
+export const RedditGrowthIntelligencePayloadSchema = z.object({
+  summary: z
+    .string()
+    .describe("Executive overview of current Reddit sentiment, candidate friction, and community discussions."),
+  insights: z
+    .array(RedditGrowthInsightItemSchema)
+    .describe("List of structured growth insights synthesized from the Reddit opportunity dataset."),
+});
+
+export type RedditGrowthIntelligencePayload = z.infer<typeof RedditGrowthIntelligencePayloadSchema>;
+
