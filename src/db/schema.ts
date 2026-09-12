@@ -187,3 +187,36 @@ export const redditCommunities = sqliteTable("reddit_communities", {
   name: text("name").notNull().unique(),
   createdAt: integer("created_at", { mode: "timestamp_ms" }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
+
+export const redditScans = sqliteTable("reddit_scans", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  startedAt: integer("started_at", { mode: "timestamp_ms" }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+  completedAt: integer("completed_at", { mode: "timestamp_ms" }),
+  subredditsScanned: integer("subreddits_scanned").default(0),
+  postsDiscovered: integer("posts_discovered").default(0),
+  newPosts: integer("new_posts").default(0),
+  skippedPosts: integer("skipped_posts").default(0),
+  status: text("status").notNull(), // SUCCESS, FAILED
+  errorMessage: text("error_message"),
+});
+
+export const redditPosts = sqliteTable("reddit_posts", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  redditPostId: text("reddit_post_id").notNull().unique(), // The ID from Reddit e.g. "t3_xxxxxx"
+  subreddit: text("subreddit").notNull(),
+  title: text("title").notNull(),
+  body: text("body"),
+  permalink: text("permalink").notNull(),
+  author: text("author"),
+  score: integer("score").default(0),
+  commentCount: integer("comment_count").default(0),
+  createdUtc: integer("created_utc", { mode: "timestamp_ms" }).notNull(),
+  fetchedAt: integer("fetched_at", { mode: "timestamp_ms" }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+  
+  // Filtering & Safety flags
+  isNsfw: integer("is_nsfw", { mode: "boolean" }).default(false),
+  isSpam: integer("is_spam", { mode: "boolean" }).default(false),
+  isDeleted: integer("is_deleted", { mode: "boolean" }).default(false),
+  
+  ingestionStatus: text("ingestion_status").default("UNPROCESSED").notNull(), // UNPROCESSED, FILTERED, OPPORTUNITY
+});

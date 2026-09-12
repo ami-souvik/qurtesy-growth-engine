@@ -148,7 +148,7 @@ export function RedditSourceInput({
         </div>
 
         {initialConfig.lastScanAt && (
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground" suppressHydrationWarning>
             Last successful scan: {new Date(initialConfig.lastScanAt).toLocaleString()}
           </p>
         )}
