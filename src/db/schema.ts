@@ -300,4 +300,32 @@ export const redditCommentDrafts = sqliteTable("reddit_comment_drafts", {
   updatedAt: integer("updated_at", { mode: "timestamp_ms" }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
+export const redditResumeReviews = sqliteTable("reddit_resume_reviews", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  opportunityId: text("opportunity_id")
+    .notNull()
+    .references(() => redditOpportunities.id, { onDelete: "cascade" }),
+  
+  targetRole: text("target_role"),
+  targetJobDescription: text("target_job_description"),
+  extractedResumeSnippet: text("extracted_resume_snippet"), // Minimal public excerpt
+  
+  // Structured Feedback Components (Stored as JSON strings)
+  topImprovements: text("top_improvements").notNull(), // JSON array of [{ priority, title, explanation }]
+  bulletRewrites: text("bullet_rewrites").notNull(), // JSON array of [{ originalBullet, issue, suggestedRewrite, evidencePresent }]
+  missingEvidence: text("missing_evidence").notNull(), // JSON array of [{ area, guidance, placeholderExample }]
+  atsConsiderations: text("ats_considerations").notNull(), // JSON array of [{ category, recommendation }]
+  
+  clarityAssessment: text("clarity_assessment").notNull(),
+  keywordAlignment: text("keyword_alignment"),
+  
+  commentDraft: text("comment_draft").notNull(), // Reddit markdown draft
+  status: text("status").default("ANALYZED").notNull(), // ANALYZED, EDITED, COPIED
+  modelUsed: text("model_used"),
+  
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
+
+
 

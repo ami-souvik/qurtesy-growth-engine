@@ -5,7 +5,7 @@ import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { ExternalLink, Flame, ShieldAlert, CheckCircle2, Bookmark, EyeOff, Sparkles, Filter, MessageSquarePlus } from "lucide-react"
+import { ExternalLink, Flame, ShieldAlert, CheckCircle2, Bookmark, EyeOff, Sparkles, Filter, MessageSquarePlus, FileText } from "lucide-react"
 import { updateOpportunityStatus } from "@/actions/reddit-intelligence-actions"
 
 
@@ -330,6 +330,21 @@ export function OpportunityList({ initialOpportunities }: { initialOpportunities
                       }`}>
                         {opp.promotionalRisk} Risk
                       </span>
+
+                      {/* Resume Review Assistant Action */}
+                      <Link href={`/reddit-scout/resume-review/${opp.id}`}>
+                        <Button
+                          size="sm"
+                          className={`h-7 text-xs px-2.5 font-semibold ${
+                            opp.opportunityType === "RESUME_REVIEW"
+                              ? "bg-emerald-500/15 text-emerald-700 hover:bg-emerald-500/25 border border-emerald-500/30 dark:text-emerald-400"
+                              : "bg-muted text-muted-foreground hover:bg-muted/80 border"
+                          }`}
+                          title="Open Resume Review Assistant"
+                        >
+                          <FileText className="h-3.5 w-3.5 mr-1 text-emerald-600 dark:text-emerald-400" /> Review Resume
+                        </Button>
+                      </Link>
 
                       {/* Draft Comment Action */}
                       <Link href={`/reddit-scout/draft/${opp.id}`}>

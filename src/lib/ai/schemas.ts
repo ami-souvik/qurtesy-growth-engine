@@ -189,4 +189,61 @@ export const RedditCommentDraftResponseSchema = z.object({
 
 export type RedditCommentDraftResponse = z.infer<typeof RedditCommentDraftResponseSchema>;
 
+export const ResumeImprovementItemSchema = z.object({
+  priority: z.number().int().min(1).max(3).describe("Priority rank: 1 (highest impact), 2, or 3."),
+  title: z.string().describe("Concise, actionable improvement headline."),
+  explanation: z.string().describe("Specific explanation of what to change and why it improves interview odds."),
+});
+
+export const BulletRewriteItemSchema = z.object({
+  originalBullet: z.string().describe("Exact bullet text from candidate's resume/post."),
+  issue: z.string().describe("Specific weakness (e.g. passive tone, missing scope, unquantified impact)."),
+  suggestedRewrite: z.string().describe(
+    "Rewritten bullet following [Action Verb] + [Context] + [Impact]. STRICT ZERO-FABRICATION: use placeholders like [insert metric if known] for any unstated numbers."
+  ),
+  evidencePresent: z.boolean().describe("True if sufficient factual basis was present in the user's text."),
+});
+
+export const MissingEvidenceItemSchema = z.object({
+  area: z.string().describe("Experience, tech stack, or outcome area lacking clear proof."),
+  guidance: z.string().describe("What the candidate should self-verify, clarify, or quantify."),
+  placeholderExample: z.string().describe("Template or placeholder showing how they can format it if they have the data."),
+});
+
+export const AtsConsiderationItemSchema = z.object({
+  category: z.string().describe("Category: Layout, Header, Fonts, Tables, or Keywords."),
+  recommendation: z.string().describe("Evidence-based ATS recommendation (e.g. avoid 2-column tables)."),
+});
+
+export const RedditResumeReviewResponseSchema = z.object({
+  targetRoleIdentified: z.string().nullable().describe("Target role detected or confirmed."),
+  topImprovements: z
+    .array(ResumeImprovementItemSchema)
+    .length(3)
+    .describe("Exactly 3 prioritized, high-impact improvements."),
+  bulletRewrites: z
+    .array(BulletRewriteItemSchema)
+    .describe("Rewritten bullet points where evidence exists, using placeholders for missing data."),
+  missingEvidence: z
+    .array(MissingEvidenceItemSchema)
+    .describe("Specific areas where the candidate should quantify or clarify their own results."),
+  atsConsiderations: z
+    .array(AtsConsiderationItemSchema)
+    .describe("Actionable ATS compatibility recommendations based strictly on layout and parsing rules."),
+  clarityAssessment: z.string().describe("Brief evaluation of resume readability, structure, and brevity."),
+  keywordAlignmentAssessment: z
+    .string()
+    .nullable()
+    .describe("Comparison of resume keywords against target role/JD if provided."),
+  redditCommentDraft: z.string().describe(
+    "Constructive, Reddit-native feedback comment in markdown. 90% useful feedback, 10% optional Qurtesy mention."
+  ),
+  guardrailsVerified: z.boolean().describe(
+    "Confirms zero fabricated achievements, metrics, technologies, employers, or credentials."
+  ),
+});
+
+export type RedditResumeReviewResponse = z.infer<typeof RedditResumeReviewResponseSchema>;
+
+
 
