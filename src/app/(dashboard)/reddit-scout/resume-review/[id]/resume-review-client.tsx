@@ -21,7 +21,9 @@ import {
   TrendingUp,
   FileSearch,
   ListOrdered,
+  Send,
 } from "lucide-react"
+import { MarkAsPostedModal } from "@/components/reddit/mark-as-posted-modal"
 import {
   OpportunityWithResumeReview,
   ParsedResumeReview,
@@ -59,6 +61,7 @@ export function ResumeReviewClient({
   const [saving, setSaving] = useState(false)
   const [copied, setCopied] = useState(initialData.review?.status === "COPIED")
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null)
+  const [markPostedOpen, setMarkPostedOpen] = useState(false)
 
   const handleRunAnalysis = async () => {
     if (!resumeText.trim()) {
@@ -440,19 +443,32 @@ export function ResumeReviewClient({
                       {saving ? "Saving..." : "Save Edits"}
                     </Button>
 
-                    <Button
-                      size="sm"
-                      onClick={handleCopyComment}
-                      disabled={!commentDraft.trim()}
-                      className="bg-primary text-primary-foreground text-xs font-semibold px-4"
-                    >
-                      {copied ? (
-                        <Check className="mr-1.5 h-4 w-4 text-emerald-400" />
-                      ) : (
-                        <Copy className="mr-1.5 h-4 w-4" />
-                      )}
-                      {copied ? "Copied!" : "Copy Comment"}
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setMarkPostedOpen(true)}
+                        disabled={!commentDraft.trim()}
+                        className="text-xs font-semibold text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 border-emerald-300 dark:text-emerald-400 dark:border-emerald-700"
+                      >
+                        <Send className="mr-1.5 h-3.5 w-3.5 text-emerald-600" />
+                        Mark as Posted
+                      </Button>
+
+                      <Button
+                        size="sm"
+                        onClick={handleCopyComment}
+                        disabled={!commentDraft.trim()}
+                        className="bg-primary text-primary-foreground text-xs font-semibold px-4"
+                      >
+                        {copied ? (
+                          <Check className="mr-1.5 h-4 w-4 text-emerald-400" />
+                        ) : (
+                          <Copy className="mr-1.5 h-4 w-4" />
+                        )}
+                        {copied ? "Copied!" : "Copy Comment"}
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -460,6 +476,28 @@ export function ResumeReviewClient({
           )}
         </div>
       </div>
+
+      {/* Mark As Posted Modal */}
+      <MarkAsPostedModal
+        isOpen={markPostedOpen}
+        onClose={() => setMarkPostedOpen(false)}
+        initialData={{
+          opportunityId: opportunity.id,
+          resumeReviewId: review?.id,
+          subreddit: rawPost.subreddit,
+          postTitle: rawPost.title,
+          postUrl: fullRedditUrl,
+          strategy: "RESUME_REVIEW",
+          responseStyle: "DIRECT_CRITIQUE",
+          topic: review?.targetRole || "Resume Review",
+          humanEditedDraft: commentDraft,
+          finalComment: commentDraft,
+        }}
+        onSuccess={() => {
+          setFeedbackMessage("Marked as posted! You can now track performance in Posting History.")
+          setReview(prev => (prev ? { ...prev, status: "POSTED" } : null))
+        }}
+      />
     </div>
   )
 }

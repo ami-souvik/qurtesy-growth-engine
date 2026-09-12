@@ -327,5 +327,43 @@ export const redditResumeReviews = sqliteTable("reddit_resume_reviews", {
   updatedAt: integer("updated_at", { mode: "timestamp_ms" }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
+export const redditPostedComments = sqliteTable("reddit_posted_comments", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  opportunityId: text("opportunity_id").references(() => redditOpportunities.id, { onDelete: "set null" }),
+  commentDraftId: text("comment_draft_id").references(() => redditCommentDrafts.id, { onDelete: "set null" }),
+  resumeReviewId: text("resume_review_id").references(() => redditResumeReviews.id, { onDelete: "set null" }),
+  
+  subreddit: text("subreddit").notNull(),
+  postTitle: text("post_title").notNull(),
+  postUrl: text("post_url").notNull(),
+  postedUrl: text("posted_url").notNull(),
+  postedAt: integer("posted_at", { mode: "timestamp_ms" }).notNull(),
+  
+  strategy: text("strategy").notNull(), // PAIN, GIVEAWAY, RESUME_REVIEW, ANTI_FAKE_AI, or custom
+  responseStyle: text("response_style"), // DIRECT_CRITIQUE, VALUE_ONLY, SHORTCUT_MENTION, FRAMEWORK_GIVEAWAY
+  topic: text("topic"),
+  notes: text("notes"),
+  
+  // Preserved Versions for Learning
+  aiDraft: text("ai_draft"),
+  humanEditedDraft: text("human_edited_draft"),
+  finalPostedComment: text("final_posted_comment").notNull(),
+  
+  // Performance Tracking (Founder-Recorded)
+  upvotes: integer("upvotes").default(0).notNull(),
+  replies: integer("replies").default(0).notNull(),
+  profileVisits: integer("profile_visits").default(0).notNull(),
+  qurtesyClicks: integer("qurtesy_clicks").default(0).notNull(),
+  qurtesySessions: integer("qurtesy_sessions").default(0).notNull(),
+  builderStarts: integer("builder_starts").default(0).notNull(),
+  tailoringStarts: integer("tailoring_starts").default(0).notNull(),
+  otherProductActions: integer("other_product_actions").default(0).notNull(),
+  lastMetricsUpdatedAt: integer("last_metrics_updated_at", { mode: "timestamp_ms" }),
+  
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
+
+
 
 

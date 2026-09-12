@@ -18,7 +18,9 @@ import {
   FileCheck,
   History,
   CheckCircle2,
+  Send,
 } from "lucide-react"
+import { MarkAsPostedModal } from "@/components/reddit/mark-as-posted-modal"
 import {
   OpportunityWithPostAndDraft,
   CommentDraftRecord,
@@ -55,6 +57,7 @@ export function CommentWorkspaceClient({
   const [copied, setCopied] = useState(initialData.draft?.status === "COPIED")
   const [showOriginal, setShowOriginal] = useState(false)
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null)
+  const [markPostedOpen, setMarkPostedOpen] = useState(false)
 
   const handleGenerate = async () => {
     setLoading(true)
@@ -354,6 +357,17 @@ export function CommentWorkspaceClient({
 
                   <Button
                     size="sm"
+                    variant="outline"
+                    onClick={() => setMarkPostedOpen(true)}
+                    disabled={!currentText.trim()}
+                    className="text-xs font-semibold text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 border-emerald-300 dark:text-emerald-400 dark:border-emerald-700"
+                  >
+                    <Send className="mr-1.5 h-3.5 w-3.5 text-emerald-600" />
+                    Mark as Posted
+                  </Button>
+
+                  <Button
+                    size="sm"
                     onClick={handleCopy}
                     disabled={!currentText.trim()}
                     className="bg-primary text-primary-foreground hover:bg-primary/90 text-xs shadow-xs font-semibold px-4"
@@ -371,6 +385,27 @@ export function CommentWorkspaceClient({
           </Card>
         </div>
       </div>
+
+      {/* Mark As Posted Modal */}
+      <MarkAsPostedModal
+        isOpen={markPostedOpen}
+        onClose={() => setMarkPostedOpen(false)}
+        initialData={{
+          opportunityId: opportunity.id,
+          commentDraftId: draft?.id,
+          subreddit: rawPost.subreddit,
+          postTitle: rawPost.title,
+          postUrl: fullRedditUrl,
+          strategy: selectedStrategy,
+          aiDraft: draft?.originalAiDraft,
+          humanEditedDraft: draft?.humanEditedDraft || undefined,
+          finalComment: currentText,
+        }}
+        onSuccess={() => {
+          setFeedbackMessage("Marked as posted! You can now track performance in Posting History.")
+          setDraft(prev => (prev ? { ...prev, status: "POSTED" } : null))
+        }}
+      />
     </div>
   )
 }

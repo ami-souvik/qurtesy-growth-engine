@@ -245,5 +245,61 @@ export const RedditResumeReviewResponseSchema = z.object({
 
 export type RedditResumeReviewResponse = z.infer<typeof RedditResumeReviewResponseSchema>;
 
+export const RecordPostedCommentInputSchema = z.object({
+  opportunityId: z.string().optional().nullable(),
+  commentDraftId: z.string().optional().nullable(),
+  resumeReviewId: z.string().optional().nullable(),
+  subreddit: z.string().min(1, "Subreddit is required"),
+  postTitle: z.string().min(1, "Post title is required"),
+  postUrl: z.string().min(1, "Post URL is required"),
+  postedUrl: z.string().min(1, "Direct Reddit comment URL is required"),
+  postedAt: z.union([z.date(), z.string(), z.number()]),
+  strategy: z.string().min(1, "Strategy is required"),
+  responseStyle: z.string().optional().nullable(),
+  topic: z.string().optional().nullable(),
+  notes: z.string().optional().nullable(),
+  aiDraft: z.string().optional().nullable(),
+  humanEditedDraft: z.string().optional().nullable(),
+  finalPostedComment: z.string().min(1, "Final posted comment is required"),
+});
+
+export type RecordPostedCommentInput = z.infer<typeof RecordPostedCommentInputSchema>;
+
+export const UpdatePostPerformanceInputSchema = z.object({
+  id: z.string().min(1, "Post ID is required"),
+  upvotes: z.number().int().min(0).default(0),
+  replies: z.number().int().min(0).default(0),
+  profileVisits: z.number().int().min(0).default(0),
+  qurtesyClicks: z.number().int().min(0).default(0),
+  qurtesySessions: z.number().int().min(0).default(0),
+  builderStarts: z.number().int().min(0).default(0),
+  tailoringStarts: z.number().int().min(0).default(0),
+  otherProductActions: z.number().int().min(0).default(0),
+});
+
+export type UpdatePostPerformanceInput = z.infer<typeof UpdatePostPerformanceInputSchema>;
+
+export const EvidenceStrengthEnum = z.enum([
+  "INSUFFICIENT_DATA",
+  "EMERGING_PATTERN",
+  "STATISTICALLY_RELIABLE",
+]);
+
+export type EvidenceStrength = z.infer<typeof EvidenceStrengthEnum>;
+
+export const LearningPatternItemSchema = z.object({
+  id: z.string(),
+  pattern: z.string(),
+  category: z.string(), // STRATEGY_PERFORMANCE, CONVERSION_EFFICIENCY, SUBREDDIT_ENGAGEMENT
+  evidenceStrength: EvidenceStrengthEnum,
+  sampleSize: z.number().int(),
+  confidence: z.number().min(0).max(100),
+  observationPeriod: z.string(),
+  dataSummary: z.string(),
+  recommendedAction: z.string(),
+});
+
+export type LearningPatternItem = z.infer<typeof LearningPatternItemSchema>;
+
 
 

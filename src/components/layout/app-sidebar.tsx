@@ -1,10 +1,12 @@
 "use client"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Database } from "lucide-react"
+import { Database, Flame, History } from "lucide-react"
 
 const navigation = [
   { name: "Data Sources", href: "/", icon: Database },
+  { name: "Reddit Scout", href: "/reddit-scout", icon: Flame },
+  { name: "Posting History", href: "/reddit-scout/history", icon: History },
 ]
 
 export function AppSidebar() {

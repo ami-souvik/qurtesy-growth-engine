@@ -4,9 +4,11 @@ import { getRedditOpportunities, getOpportunityMetrics } from "@/actions/reddit-
 import { ScanButton } from "./scan-button"
 import { AnalyzeButton } from "./analyze-button"
 import { OpportunityList, OpportunityItem } from "./opportunity-list"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Sparkles, Flame, Target, Database, Rss } from "lucide-react"
+import { Sparkles, Flame, Target, Database, Rss, History } from "lucide-react"
 
 export default async function RedditScoutPage() {
   const [config, communities, recentScans, rawOpportunities, metrics] = await Promise.all([
@@ -50,6 +52,12 @@ export default async function RedditScoutPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
+          <Link href="/reddit-scout/history">
+            <Button variant="outline" className="text-xs font-semibold">
+              <History className="mr-1.5 h-3.5 w-3.5 text-primary" />
+              Posting History & Performance
+            </Button>
+          </Link>
           <ScanButton />
           <AnalyzeButton unprocessedCount={metrics.unprocessedPosts} />
         </div>
