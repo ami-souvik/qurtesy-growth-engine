@@ -39,6 +39,8 @@ OUTPUT STRUCTURE:
 5. Reddit Comment Draft: A polite, humble, Reddit-native markdown response summarizing the review.`;
 }
 
+import { sanitizeUntrustedXmlContent } from "@/lib/reddit-utils"
+
 export function formatResumeReviewInput(input: {
   subreddit: string
   title: string
@@ -47,10 +49,14 @@ export function formatResumeReviewInput(input: {
   targetJobDescription?: string | null
   author?: string | null
 }): string {
-  const authorStr = input.author ? `u/${input.author}` : "Anonymous"
-  const roleStr = input.targetRole?.trim() || "[Not explicitly specified by user]"
+  const authorStr = input.author ? `u/${sanitizeUntrustedXmlContent(input.author)}` : "Anonymous"
+  const roleStr = input.targetRole?.trim()
+    ? sanitizeUntrustedXmlContent(input.targetRole)
+    : "[Not explicitly specified by user]"
+  const sanitizedTitle = sanitizeUntrustedXmlContent(input.title)
+  const sanitizedResumeText = sanitizeUntrustedXmlContent(input.resumeText)
   const jdStr = input.targetJobDescription?.trim()
-    ? `\n\n<target_job_description>\n${input.targetJobDescription.trim()}\n</target_job_description>`
+    ? `\n\n<target_job_description>\n${sanitizeUntrustedXmlContent(input.targetJobDescription)}\n</target_job_description>`
     : "\n[No specific target Job Description provided]"
 
   return `Please perform a detailed, zero-fabrication resume critique:
@@ -58,12 +64,12 @@ export function formatResumeReviewInput(input: {
 <reddit_thread_context>
 Subreddit: r/${input.subreddit}
 Author: ${authorStr}
-Thread Title: ${input.title}
+Thread Title: ${sanitizedTitle}
 Target Role: ${roleStr}
 </reddit_thread_context>
 
 <candidate_resume_text>
-${input.resumeText.trim()}
+${sanitizedResumeText}
 </candidate_resume_text>
 ${jdStr}`;
 }

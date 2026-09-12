@@ -58,17 +58,19 @@ export async function scanReddit() {
     let totalNew = 0
     let totalSkipped = 0
 
-    let globalError = null
+    const successfulCommunities: string[] = []
+    const failedCommunities: Array<{ community: string; error: string }> = []
 
     for (let i = 0; i < communities.length; i++) {
       const community = communities[i]
       if (i > 0) {
-        // Sleep 2 seconds between communities to respect unauthenticated rate limits
+        // Sleep 2 seconds between communities to respect rate limits
         await new Promise(r => setTimeout(r, 2000))
       }
       try {
         const posts = await fetchRecentPosts(community.name)
         totalDiscovered += posts.length
+        successfulCommunities.push(community.name)
 
         if (posts.length === 0) continue
 
@@ -115,19 +117,34 @@ export async function scanReddit() {
         }
       } catch (err: any) {
         console.error(`Failed to scan community ${community.name}:`, err)
-        globalError = err.message || "Unknown error"
+        failedCommunities.push({ community: community.name, error: err.message || "Unknown error" })
       }
     }
 
-    // Mark scan complete
+    // Determine accurate scan status: SUCCESS, PARTIAL_FAILURE, or FAILED
+    let scanStatus: "SUCCESS" | "PARTIAL_FAILURE" | "FAILED" = "SUCCESS"
+    let errorMessage: string | null = null
+
+    if (failedCommunities.length > 0) {
+      if (successfulCommunities.length === 0 && communities.length > 0) {
+        scanStatus = "FAILED"
+      } else {
+        scanStatus = "PARTIAL_FAILURE"
+      }
+      errorMessage = failedCommunities
+        .map(f => `r/${f.community}: ${f.error}`)
+        .join("; ")
+    }
+
+    // Mark scan complete with definitive status
     await db.update(redditScans).set({
-      status: globalError ? "FAILED" : "SUCCESS",
+      status: scanStatus,
       completedAt: new Date(),
       subredditsScanned: communities.length,
       postsDiscovered: totalDiscovered,
       newPosts: totalNew,
       skippedPosts: totalSkipped,
-      errorMessage: globalError
+      errorMessage,
     }).where(eq(redditScans.id, scanId))
 
     // Update global config last scan time
@@ -138,16 +155,22 @@ export async function scanReddit() {
     revalidatePath("/reddit-scout")
     revalidatePath("/")
     
-    return { success: true, newPosts: totalNew }
-
-  } catch (error: any) {
+    return {
+      scanId,
+      status: scanStatus,
+      totalDiscovered,
+      totalNew,
+      totalSkipped,
+      failedCount: failedCommunities.length,
+    }
+  } catch (fatalError: any) {
+    console.error("Fatal scan failure:", fatalError)
     await db.update(redditScans).set({
       status: "FAILED",
       completedAt: new Date(),
-      errorMessage: error.message || "Unknown error"
+      errorMessage: fatalError.message || "Fatal scan error",
     }).where(eq(redditScans.id, scanId))
-    
-    revalidatePath("/reddit-scout")
-    throw error
+    throw fatalError
   }
 }
+

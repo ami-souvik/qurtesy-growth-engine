@@ -6,13 +6,19 @@ import { eq } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/auth"
 
-// Ensure user is authorized before modifying config
 async function verifyAuth() {
-  const session = await auth()
-  if (!session?.user) {
+  try {
+    const session = await auth()
+    if (!session?.user) {
+      throw new Error("Unauthorized")
+    }
+    return session
+  } catch (err: any) {
+    if (err.message === "Unauthorized") {
+      throw err
+    }
     throw new Error("Unauthorized")
   }
-  return session
 }
 
 export async function getRedditConfig() {
@@ -42,14 +48,15 @@ export async function toggleRedditEnabled(enabled: boolean) {
   revalidatePath("/")
 }
 
-import { normalizeSubreddit } from "@/lib/reddit-utils"
+import { normalizeSubreddit, isValidSubredditName } from "@/lib/reddit-utils"
+import { pruneExpiredRedditContent } from "@/lib/reddit-retention"
 
 export async function addRedditCommunity(name: string) {
   await verifyAuth()
   const normalizedName = normalizeSubreddit(name)
   
-  if (!normalizedName) {
-    throw new Error("Invalid subreddit name")
+  if (!isValidSubredditName(normalizedName)) {
+    throw new Error("Invalid subreddit name. Must be 2-30 alphanumeric characters or underscores.")
   }
 
   // Check if it already exists to prevent duplicate constraint errors crashing
@@ -66,3 +73,15 @@ export async function removeRedditCommunity(id: string) {
   await db.delete(redditCommunities).where(eq(redditCommunities.id, id))
   revalidatePath("/")
 }
+
+export async function cleanupExpiredRedditContent(options?: {
+  rawPostDays?: number
+  scanLogDays?: number
+}) {
+  await verifyAuth()
+  const result = await pruneExpiredRedditContent(options)
+  revalidatePath("/reddit-scout")
+  revalidatePath("/")
+  return result
+}
+

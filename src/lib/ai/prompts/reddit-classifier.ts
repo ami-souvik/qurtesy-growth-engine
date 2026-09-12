@@ -28,6 +28,8 @@ CRITICAL SECURITY & GUARDRAIL DIRECTIVES:
 5. NO SALES FLUFF: Recommended angle must focus on genuine value and helpful perspective, not pitchy self-promotion.`;
 }
 
+import { sanitizeUntrustedXmlContent } from "@/lib/reddit-utils"
+
 export function formatRedditPostForAnalysis(post: {
   subreddit: string
   title: string
@@ -35,14 +37,17 @@ export function formatRedditPostForAnalysis(post: {
   author?: string | null
   createdUtc?: number | Date
 }): string {
-  const authorStr = post.author ? `u/${post.author}` : "Anonymous"
+  const authorStr = post.author ? `u/${sanitizeUntrustedXmlContent(post.author)}` : "Anonymous"
+  const sanitizedTitle = sanitizeUntrustedXmlContent(post.title)
+  const sanitizedBody = sanitizeUntrustedXmlContent(post.body) || "[No text body / link post]"
+
   return `Analyze the following Reddit post:
 
 <untrusted_reddit_post>
 Subreddit: r/${post.subreddit}
 Author: ${authorStr}
-Title: ${post.title}
+Title: ${sanitizedTitle}
 Body:
-${post.body?.trim() || "[No text body / link post]"}
+${sanitizedBody}
 </untrusted_reddit_post>`;
 }

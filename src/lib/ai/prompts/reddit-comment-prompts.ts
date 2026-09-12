@@ -79,6 +79,8 @@ STRICT GUARDRAILS (ZERO TOLERANCE):
 - NEVER generate spam, harassment, or self-promotional link bombs.`;
 }
 
+import { sanitizeUntrustedXmlContent } from "@/lib/reddit-utils"
+
 export function formatOpportunityForDrafting(opportunity: {
   subreddit: string
   title: string
@@ -90,15 +92,18 @@ export function formatOpportunityForDrafting(opportunity: {
   recommendedAngle: string
   permalink: string
 }): string {
-  const authorStr = opportunity.author ? `u/${opportunity.author}` : "Anonymous"
+  const authorStr = opportunity.author ? `u/${sanitizeUntrustedXmlContent(opportunity.author)}` : "Anonymous"
+  const sanitizedTitle = sanitizeUntrustedXmlContent(opportunity.title)
+  const sanitizedBody = sanitizeUntrustedXmlContent(opportunity.body) || "[No text body / link post]"
+
   return `Generate a value-first Reddit comment draft for the following conversation:
 
 <target_reddit_post>
 Subreddit: r/${opportunity.subreddit}
 Author: ${authorStr}
-Title: ${opportunity.title}
+Title: ${sanitizedTitle}
 Body:
-${opportunity.body?.trim() || "[No text body / link post]"}
+${sanitizedBody}
 </target_reddit_post>
 
 AI Opportunity Context:
