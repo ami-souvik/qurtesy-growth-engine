@@ -1,11 +1,13 @@
 "use client"
 
 import { useState, useMemo } from "react"
+import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { ExternalLink, Flame, ShieldAlert, CheckCircle2, Bookmark, EyeOff, Sparkles, Filter } from "lucide-react"
+import { ExternalLink, Flame, ShieldAlert, CheckCircle2, Bookmark, EyeOff, Sparkles, Filter, MessageSquarePlus } from "lucide-react"
 import { updateOpportunityStatus } from "@/actions/reddit-intelligence-actions"
+
 
 export interface OpportunityItem {
   id: string
@@ -328,6 +330,16 @@ export function OpportunityList({ initialOpportunities }: { initialOpportunities
                       }`}>
                         {opp.promotionalRisk} Risk
                       </span>
+
+                      {/* Draft Comment Action */}
+                      <Link href={`/reddit-scout/draft/${opp.id}`}>
+                        <Button
+                          size="sm"
+                          className="h-7 text-xs px-2.5 bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20 font-semibold"
+                        >
+                          <MessageSquarePlus className="h-3.5 w-3.5 mr-1" /> Draft Comment
+                        </Button>
+                      </Link>
 
                       {/* Status Toggle Buttons */}
                       {opp.status === "DISCOVERED" && (

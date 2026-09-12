@@ -155,3 +155,38 @@ export const RedditGrowthIntelligencePayloadSchema = z.object({
 
 export type RedditGrowthIntelligencePayload = z.infer<typeof RedditGrowthIntelligencePayloadSchema>;
 
+export const RedditCommentStrategyEnum = z.enum([
+  "PAIN",
+  "GIVEAWAY",
+  "RESUME_REVIEW",
+  "ANTI_FAKE_AI",
+]);
+
+export const ProductMentionReasonEnum = z.enum([
+  "directly relevant",
+  "natural",
+  "not relevant",
+]);
+
+export const RedditCommentDraftResponseSchema = z.object({
+  includeProductMention: z.boolean().describe("Whether Qurtesy is mentioned in this comment draft."),
+  productMentionReason: ProductMentionReasonEnum.describe(
+    "Reason why product mention was included or omitted: 'directly relevant', 'natural', or 'not relevant'."
+  ),
+  strategyUsed: RedditCommentStrategyEnum.describe(
+    "The strategy applied: PAIN, GIVEAWAY, RESUME_REVIEW, or ANTI_FAKE_AI."
+  ),
+  commentDraft: z.string().describe(
+    "The complete, ready-to-post Reddit comment draft in Reddit markdown. 90% useful answer, 10% optional product mention."
+  ),
+  valueProvidedSummary: z.string().describe(
+    "Concise summary of the genuine value provided to the user before any product mention."
+  ),
+  guardrailsVerified: z.boolean().describe(
+    "Confirms no fake claims, testimonials, user counts, or fake personal anecdotes were invented."
+  ),
+});
+
+export type RedditCommentDraftResponse = z.infer<typeof RedditCommentDraftResponseSchema>;
+
+

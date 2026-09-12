@@ -279,3 +279,25 @@ export const redditGrowthInsights = sqliteTable("reddit_growth_insights", {
   updatedAt: integer("updated_at", { mode: "timestamp_ms" }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
+export const redditCommentDrafts = sqliteTable("reddit_comment_drafts", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  opportunityId: text("opportunity_id")
+    .notNull()
+    .references(() => redditOpportunities.id, { onDelete: "cascade" }),
+  
+  strategy: text("strategy").notNull(), // PAIN, GIVEAWAY, RESUME_REVIEW, ANTI_FAKE_AI
+  includeProductMention: integer("include_product_mention", { mode: "boolean" }).default(false).notNull(),
+  productMentionReason: text("product_mention_reason").notNull(), // directly relevant, natural, not relevant
+  
+  originalAiDraft: text("original_ai_draft").notNull(), // Pristine, NEVER overwritten
+  humanEditedDraft: text("human_edited_draft"), // Updated when edited by founder
+  finalApprovedDraft: text("final_approved_draft"), // Set when copied
+  
+  status: text("status").default("DRAFTED").notNull(), // DRAFTED, EDITED, COPIED
+  modelUsed: text("model_used"),
+  
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
+
+
