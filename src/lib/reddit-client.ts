@@ -5,8 +5,8 @@ export type RedditPost = {
   selftext: string
   permalink: string
   author: string
-  score: number
-  num_comments: number
+  score: number | null
+  num_comments: number | null
   created_utc: number
   over_18: boolean
   is_robot_indexable: boolean // Can use to detect if removed/spam often
@@ -79,8 +79,8 @@ function parseRssFeed(xml: string, defaultSubreddit: string): RedditPost[] {
         selftext,
         permalink,
         author,
-        score: 0,
-        num_comments: 0,
+        score: null,
+        num_comments: null,
         created_utc,
         over_18: isNsfw,
         is_robot_indexable: true,

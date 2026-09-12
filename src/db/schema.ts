@@ -208,8 +208,8 @@ export const redditPosts = sqliteTable("reddit_posts", {
   body: text("body"),
   permalink: text("permalink").notNull(),
   author: text("author"),
-  score: integer("score").default(0),
-  commentCount: integer("comment_count").default(0),
+  score: integer("score"),
+  commentCount: integer("comment_count"),
   createdUtc: integer("created_utc", { mode: "timestamp_ms" }).notNull(),
   fetchedAt: integer("fetched_at", { mode: "timestamp_ms" }).default(sql`CURRENT_TIMESTAMP`).notNull(),
   
@@ -220,3 +220,41 @@ export const redditPosts = sqliteTable("reddit_posts", {
   
   ingestionStatus: text("ingestion_status").default("UNPROCESSED").notNull(), // UNPROCESSED, FILTERED, OPPORTUNITY
 });
+
+export const redditOpportunities = sqliteTable("reddit_opportunities", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  postId: text("post_id")
+    .notNull()
+    .references(() => redditPosts.id, { onDelete: "cascade" }),
+  
+  // Classification & Scoring
+  opportunityType: text("opportunity_type").notNull(), // PAIN, GIVEAWAY, RESUME_REVIEW, ANTI_FAKE_AI, IGNORE
+  priority: text("priority").notNull(), // HIGH, MEDIUM, LOW, IGNORE
+  opportunityScore: integer("opportunity_score").notNull(), // 0 - 100
+  
+  // Detailed Sub-scores (0 - 10)
+  painScore: integer("pain_score").default(0).notNull(),
+  intentScore: integer("intent_score").default(0).notNull(),
+  relevanceScore: integer("relevance_score").default(0).notNull(),
+  helpfulnessScore: integer("helpfulness_score").default(0).notNull(),
+  freshnessScore: integer("freshness_score").default(0).notNull(),
+  
+  // Risk & Confidence
+  promotionalRisk: text("promotional_risk").default("LOW").notNull(), // LOW, MEDIUM, HIGH
+  confidence: integer("confidence").default(0).notNull(), // 0 - 100 percentage
+  
+  // Strategic Insights
+  recommendedAngle: text("recommended_angle").notNull(),
+  reasoning: text("reasoning"),
+  riskFlags: text("risk_flags"), // JSON string e.g. '["HIGH_PROMOTION_RISK"]'
+  
+  // Workflow State & Provenance
+  status: text("status").default("DISCOVERED").notNull(), // DISCOVERED, SAVED, DISMISSED
+  analysisVersion: text("analysis_version").default("v1.0").notNull(),
+  modelUsed: text("model_used"),
+  
+  analyzedAt: integer("analyzed_at", { mode: "timestamp_ms" }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
+
