@@ -364,6 +364,27 @@ export const redditPostedComments = sqliteTable("reddit_posted_comments", {
   updatedAt: integer("updated_at", { mode: "timestamp_ms" }).default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
+export const redditManualDrafts = sqliteTable("reddit_manual_drafts", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  draftType: text("draft_type").notNull(), // "POST_COMMENT" | "COMMENT_REPLY"
+  subreddit: text("subreddit").notNull(),
+  postTitle: text("post_title").notNull(),
+  postUrl: text("post_url"),
+  postBody: text("post_body"),
+  attachedImages: text("attached_images"), // JSON string array of URLs or data URLs
+  targetCommentAuthor: text("target_comment_author"),
+  targetCommentBody: text("target_comment_body"),
+  strategy: text("strategy").notNull(),
+  aiDraft: text("ai_draft").notNull(),
+  humanEditedDraft: text("human_edited_draft"),
+  valueProvidedSummary: text("value_provided_summary"),
+  includeProductMention: integer("include_product_mention", { mode: "boolean" }).default(false).notNull(),
+  productMentionReason: text("product_mention_reason"),
+  status: text("status").default("DRAFTED").notNull(), // DRAFTED, EDITED, COPIED, POSTED
+  createdAt: integer("created_at", { mode: "timestamp_ms" }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
+
 
 
 
