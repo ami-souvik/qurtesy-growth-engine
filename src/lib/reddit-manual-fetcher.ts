@@ -1,4 +1,4 @@
-import { isValidSubredditName, normalizeSubreddit, sanitizeUntrustedXmlContent } from "./reddit-utils"
+import { normalizeSubreddit } from "./reddit-utils"
 
 export interface ExtractedRedditPostDetails {
   subreddit: string
@@ -231,7 +231,7 @@ export async function fetchRedditPostDetails(rawUrl: string): Promise<FetchReddi
 
     // Content & Images
     const contentMatch = postEntry.match(/<content\s+type="html">([\s\S]*?)<\/content>/)
-    let rawContent = contentMatch ? contentMatch[1] : ""
+    const rawContent = contentMatch ? contentMatch[1] : ""
     const attachedImages = extractImageUrls(rawContent)
 
     // Clean body text
@@ -301,11 +301,12 @@ export async function fetchRedditPostDetails(rawUrl: string): Promise<FetchReddi
         targetComment,
       },
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("fetchRedditPostDetails error:", error)
+    const message = error instanceof Error ? error.message : "Failed to connect to Reddit. You can enter post details manually."
     return {
       success: false,
-      error: error.message || "Failed to connect to Reddit. You can enter post details manually.",
+      error: message,
     }
   }
 }
